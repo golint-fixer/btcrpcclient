@@ -1232,14 +1232,14 @@ type FutureValidateAddressResult chan *response
 
 // Receive waits for the response promised by the future and returns information
 // about the given bitcoin address.
-func (r FutureValidateAddressResult) Receive() (*btcjson.ValidateAddressWalletResult, error) {
+func (r FutureValidateAddressResult) Receive() (*ValidateAddressWalletResult, error) {
 	res, err := receiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as a validateaddress result object.
-	var addrResult btcjson.ValidateAddressWalletResult
+	var addrResult ValidateAddressWalletResult
 	err = json.Unmarshal(res, &addrResult)
 	if err != nil {
 		return nil, err
@@ -1259,8 +1259,25 @@ func (c *Client) ValidateAddressAsync(address btcutil.Address) FutureValidateAdd
 	return c.sendCmd(cmd)
 }
 
+// ValidateAddressWalletResult models the data returned by the wallet server
+// validateaddress command.
+type ValidateAddressWalletResult struct {
+	IsValid      bool     `json:"isvalid"`
+	Address      string   `json:"address,omitempty"`
+	IsMine       bool     `json:"ismine,omitempty"`
+	IsWatchOnly  bool     `json:"iswatchonly,omitempty"`
+	IsScript     bool     `json:"isscript,omitempty"`
+	PubKey       string   `json:"pubkey,omitempty"`
+	IsCompressed bool     `json:"iscompressed,omitempty"`
+	Account      string   `json:"account,omitempty"`
+	Addresses    []string `json:"addresses,omitempty"`
+	Hex          string   `json:"hex,omitempty"`
+	ScriptPubKey string   `json:"scriptPubKey,omitempty"`
+	SigsRequired int32    `json:"sigsrequired,omitempty"`
+}
+
 // ValidateAddress returns information about the given bitcoin address.
-func (c *Client) ValidateAddress(address btcutil.Address) (*btcjson.ValidateAddressWalletResult, error) {
+func (c *Client) ValidateAddress(address btcutil.Address) (*ValidateAddressWalletResult, error) {
 	return c.ValidateAddressAsync(address).Receive()
 }
 
