@@ -9,9 +9,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 
-	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/libreoscar/btcd/btcjson"
 )
 
 // FutureGetBestBlockHashResult is a future promise to deliver the result of a
@@ -82,6 +82,7 @@ func (r FutureGetBlockResult) Receive() (*btcutil.Block, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return btcutil.NewBlock(&msgBlock), nil
 }
 
@@ -96,7 +97,7 @@ func (c *Client) GetBlockAsync(blockHash *wire.ShaHash) FutureGetBlockResult {
 		hash = blockHash.String()
 	}
 
-	cmd := btcjson.NewGetBlockCmd(hash, btcjson.Bool(false), nil)
+	cmd := btcjson.NewGetBlockCmd(hash, btcjson.Bool(false))
 	return c.sendCmd(cmd)
 }
 
@@ -134,13 +135,13 @@ func (r FutureGetBlockVerboseResult) Receive() (*btcjson.GetBlockVerboseResult, 
 // the returned instance.
 //
 // See GetBlockVerbose for the blocking version and more details.
-func (c *Client) GetBlockVerboseAsync(blockHash *wire.ShaHash, verboseTx bool) FutureGetBlockVerboseResult {
+func (c *Client) GetBlockVerboseAsync(blockHash *wire.ShaHash) FutureGetBlockVerboseResult {
 	hash := ""
 	if blockHash != nil {
 		hash = blockHash.String()
 	}
 
-	cmd := btcjson.NewGetBlockCmd(hash, btcjson.Bool(true), &verboseTx)
+	cmd := btcjson.NewGetBlockCmd(hash, btcjson.Bool(true))
 	return c.sendCmd(cmd)
 }
 
@@ -148,8 +149,8 @@ func (c *Client) GetBlockVerboseAsync(blockHash *wire.ShaHash, verboseTx bool) F
 // about a block given its hash.
 //
 // See GetBlock to retrieve a raw block instead.
-func (c *Client) GetBlockVerbose(blockHash *wire.ShaHash, verboseTx bool) (*btcjson.GetBlockVerboseResult, error) {
-	return c.GetBlockVerboseAsync(blockHash, verboseTx).Receive()
+func (c *Client) GetBlockVerbose(blockHash *wire.ShaHash) (*btcjson.GetBlockVerboseResult, error) {
+	return c.GetBlockVerboseAsync(blockHash).Receive()
 }
 
 // FutureGetBlockCountResult is a future promise to deliver the result of a
